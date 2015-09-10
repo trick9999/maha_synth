@@ -5,6 +5,9 @@
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/spiral-knob/spiral-knob.html">
+
+<script src="../bower_components/spiral/spiral.min.js"></script>
 
 <dom-module id="my-app">
 
@@ -14,7 +17,40 @@
 
   <template>
     <!-- your DOM here -->
-    <h1>My First Music App!</h1>
+    <h1>MAHA Synth</h1>
+    <h2>Low Frequency Oscillator</h2>
+    <spiral-knob id="knob_LFO1_FREQ" label="LFO1_FREQ" value = "0.0" min-value="0" max-value="100">knob me</spiral-knob>
+    <spiral-knob id="knob_LFO1_DEPTH" label="LFO1_DEPTH" value = "0.0" min-value="0" max-value="10000">knob me</spiral-knob>    
+    <spiral-knob id="knob_LFO2_FREQ" label="LFO2_FREQ" value = "0.0" min-value="0" max-value="100">knob me</spiral-knob>
+    <spiral-knob id="knob_LFO2_DEPTH" label="LFO2_DEPTH" value = "0.0" min-value="-10000" max-value="10000">knob me</spiral-knob>    
+    <spiral-knob id="knob_LFO3_FREQ" label="LFO3_FREQ" value = "0.0" min-value="0" max-value="100">knob me</spiral-knob>
+    <spiral-knob id="knob_LFO3_DEPTH" label="LFO3_DEPTH" value = "0.0" min-value="0" max-value="10000">knob me</spiral-knob>    
+    <h2>Oscillator Bank</h2>
+    <spiral-knob id="knob_OSC1_FREQ" label="OSC1_FREQ" value = "440.0" min-value="0" max-value="10000">knob me</spiral-knob>
+    <spiral-knob id="knob_OSC1_LEVEL" label="OSC1_LEVEL" value = "0.0" min-value="0" max-value="1.0">knob me</spiral-knob>
+    <spiral-knob id="knob_OSC2_FREQ" label="OSC2_FREQ" value = "440.0" min-value="0" max-value="10000">knob me</spiral-knob>
+    <spiral-knob id="knob_OSC2_LEVEL" label="OSC2_LEVEL" value = "0.0" min-value="0" max-value="1.0">knob me</spiral-knob>
+    <spiral-knob id="knob_OSC3_FREQ" label="OSC3_FREQ" value = "440.0" min-value="0" max-value="10000">knob me</spiral-knob>
+    <spiral-knob id="knob_OSC3_LEVEL" label="OSC3_LEVEL" value = "0.0" min-value="0" max-value="1.0">knob me</spiral-knob><br>
+    <h2>Noise</h2>
+    <spiral-knob id="knob_NOISE_LEVEL" label="NOISE_LEVEL" value = "0.0">knob me</spiral-knob><br>
+    <h2>Filter</h2>
+    <spiral-knob id="knob_VCF_Cutoff" label="Cutoff" value = "5000.0" min-value="0" max-value="10000">knob me</spiral-knob>
+    <spiral-knob id="knob_VCF_Resonance" label="Resonance" value = "0.0" min-value="0" max-value="60.0">knob me</spiral-knob><br>
+    <h2>Filter Envelope</h2>
+    <spiral-knob id="knob_VCF_ATTACK" label="ATTACK" value = "0.0" min-value="0" max-value="10">knob me</spiral-knob>
+    <spiral-knob id="knob_VCF_DECAY" label="DECAY" value = "0.0" min-value="0" max-value="10">knob me</spiral-knob>
+    <spiral-knob id="knob_VCF_SUSTAIN" label="SUSTAIN" value = "0.0">knob me</spiral-knob>
+    <spiral-knob id="knob_VCF_RELEASE" label="RELEASE" value = "0.0" min-value="0" max-value="10">knob me</spiral-knob>
+    <spiral-knob id="knob_VCF_AMOUNT" label="AMOUNT" value = "0.0" min-value="0" max-value="10000">knob me</spiral-knob><br>
+    <h2>AMP</h2>
+    <spiral-knob id="knob_VCA_GAIN" label="GAIN" value = "1.0">knob me</spiral-knob><br>
+    <h2>AMP Envelope</h2>
+    <spiral-knob id="knob_VCA_ATTACK" label="ATTACK" value = "0.0" min-value="0" max-value="10">knob me</spiral-knob>
+    <spiral-knob id="knob_VCA_DECAY" label="DECAY" value = "0.0" min-value="0" max-value="10">knob me</spiral-knob>
+    <spiral-knob id="knob_VCA_SUSTAIN" label="SUSTAIN" value = "0.0">knob me</spiral-knob>
+    <spiral-knob id="knob_VCA_RELEASE" label="RELEASE" value = "0.0" min-value="0" max-value="10">knob me</spiral-knob>
+    <spiral-knob id="knob_VCA_AMOUNT" label="AMOUNT" value = "0.0">knob me</spiral-knob><br>
   </template>
 
   <script>
@@ -24,14 +60,166 @@
 
       properties: {
         /* user-defined properties */
+        context: {
+          type: Object,
+          value: new AudioContext()
+        },
+
+        osc1: Object,
+        osc1_lev: Object,
+        osc2: Object,
+        osc2_lev: Object,
+        osc3: Object,
+        osc3_lev: Object,
+        noise : Object,
+        noiseBuffer: Object,
+        noise_lev: Object,
+        audio_mixer: Object,
+
+        lfo1: Object,
+        lfo1_depth: Object,
+        lfo2: Object,
+        lfo2_depth: Object,
+        lfo3: Object,
+        lfo3_depth: Object,
+        env_filter: Object,
+        env_amp: Object,
+        filter: Object,
+        filter24: Object,
+        amp: Object
       },
 
       /* user-defined methods */
+      playSound: function () {
+        var c = this.context;
+        // TODO :
+        // switch type
+        this.osc1 = c.createOscillator();
+        this.osc1_lev = c.createGain();
+        this.osc2 = c.createOscillator();
+        this.osc2_lev = c.createGain();
+        this.osc3 = c.createOscillator();
+        this.osc3_lev = c.createGain();
+        this.osc1.type = 'sine';
+        this.osc2.type = 'sawtooth'
+        this.osc3.type = 'square';
 
+
+        // noise
+        this.noiseBuffer = this.context.createBuffer(1, 44100, 44100);
+        var chanData = this.noiseBuffer.getChannelData(0);
+        for (var i=0; i < chanData.length; i++) {
+          chanData[i] = Math.random() * 2 - 1;
+        }
+
+        this.noise = c.createBufferSource();
+        this.noise.buffer = this.noiseBuffer;
+        this.noise.loop = true;
+        this.noise_lev = c.createGain();
+//        this.noise.to(c.DAC);
+//        this.noise.stop();
+        // noise end
+
+        audio_mixer = c.createChannelMerger(4);
+
+        // TODO :
+        // switch type
+        this.lfo1 = c.createOscillator();
+        this.lfo1_depth = c.createGain();
+        this.lfo2 = c.createOscillator();
+        this.lfo2_depth = c.createGain();
+        this.lfo3 = c.createOscillator();
+        this.lfo3_depth = c.createGain();
+        this.lfo1.type = 'sine';
+        this.lfo2.type = 'sawtooth'
+        this.lfo3.type = 'square';
+
+
+        this.filter = c.createBiquadFilter();
+        this.filter2 = c.createBiquadFilter();
+        this.amp    = c.createGain();
+        //this.env_filter = c.create
+
+
+        // TODO :
+        // switch destination
+        this.lfo1.to(this.lfo1_depth);
+        this.lfo2.to(this.lfo2_depth);
+        this.lfo3.to(this.lfo3_depth);
+        this.lfo1_depth.to(this.osc1.frequency);
+        this.lfo1_depth.to(this.osc2.frequency);
+        this.lfo1_depth.to(this.osc3.frequency);
+        this.lfo2_depth.to(this.osc1.frequency);
+        this.lfo2_depth.to(this.osc2.frequency);
+        this.lfo2_depth.to(this.osc3.frequency);
+        this.lfo3_depth.to(this.osc1.frequency);
+        this.lfo3_depth.to(this.osc2.frequency);
+        this.lfo3_depth.to(this.osc3.frequency);
+
+
+        this.filter.type = 'lowpass';
+        this.filter.frequency.value = 0; 
+
+        //this.osc1.to(c.DAC);
+        this.osc1.to(this.osc1_lev).to(this.filter);//.to(this.amp).to(c.DAC);
+        this.osc2.to(this.osc2_lev).to(this.filter);//.to(this.amp).to(c.DAC);
+        this.osc3.to(this.osc3_lev).to(this.filter);//.to(this.amp).to(c.DAC);
+        this.noise.to(this.noise_lev).to(this.filter);//.to(this.amp).to(c.DAC);
+        this.filter.to(this.filter2).to(this.amp).to(c.DAC);
+
+        this.lfo1.start();
+        this.lfo2.start();
+        this.lfo3.start();
+        this.osc1.start();
+        this.osc2.start();
+        this.osc3.start();
+        this.noise.start();
+
+        var keymap = {
+          '65' : 60,
+          '87' : 61,
+//          '' : 62,
+//          '' : 63,
+//          '' : 64,
+//          '' : 65,
+          '84' : 66,  // 
+          '71' : 67,  //
+          '89' : 68,  //
+          '72' : 69,  //
+          '85' : 70,  //
+          '74' : 71,  // 
+          '75' : 72   // k: C5
+        }
+      },
 
       /* Polymer built-in event handlers */
       ready: function () {
         console.log('My app is ready!');
+        
+        this.playSound();
+        this.filter.frequency
+        this.$.knob_LFO1_FREQ.bind(this.lfo1.frequency);
+        this.$.knob_LFO1_DEPTH.bind(this.lfo1_depth.gain);
+        this.$.knob_LFO2_FREQ.bind(this.lfo2.frequency);
+        this.$.knob_LFO2_DEPTH.bind(this.lfo2_depth.gain);
+        this.$.knob_LFO3_FREQ.bind(this.lfo3.frequency);
+        this.$.knob_LFO3_DEPTH.bind(this.lfo3_depth.gain);
+        
+        this.$.knob_OSC1_FREQ.bind(this.osc1.frequency);
+        this.$.knob_OSC1_LEVEL.bind(this.osc1_lev.gain);
+        this.$.knob_OSC2_FREQ.bind(this.osc2.frequency);
+        this.$.knob_OSC2_LEVEL.bind(this.osc2_lev.gain);
+        this.$.knob_OSC3_FREQ.bind(this.osc3.frequency);
+        this.$.knob_OSC3_LEVEL.bind(this.osc3_lev.gain);
+
+        this.$.knob_NOISE_LEVEL.bind(this.noise_lev.gain);
+
+        // control two filters at same time?
+        this.$.knob_VCF_Cutoff.bind(this.filter.frequency);
+        this.$.knob_VCF_Cutoff.bind(this.filter2.frequency);
+        this.$.knob_VCF_Resonance.bind(this.filter.Q);
+        this.$.knob_VCF_Resonance.bind(this.filter2.Q);
+        this.$.knob_VCA_GAIN.bind(this.amp.gain);
       },
 
       attached: function () {}
